@@ -1,4 +1,4 @@
-# generic gfortran compiler options for linux
+# gfortran compiler options for linux on mahti.csc.fi
 #
 # NCDF_HOME   root directory containing lib and include subdirectories for netcdf4
 # HDF5_HOME   root directory containing lib and include subdirectories for HDF5
@@ -34,7 +34,7 @@
 #%NCDF_C_HOME         $HOME/MODNUM/util/netcdf-c-4.3.3.1
 #%NCDF_F_HOME         $HOME/MODNUM/util/netcdf-fortran-4.4.2
 #%XIOS_HOME           $HOME/MODNUM/xios-trunk
-%HDF5_HOME           /appl/spack/v017/install-tree/gcc-11.2.0/hdf5-1.10.7-qc3apk
+%HDF5_HOME           /appl/spack/v017/install-tree/gcc-11.2.0/hdf5-1.10.7-veijpf
 %NCDF_C_HOME         $NETCDF_C_INSTALL_ROOT
 %NCDF_F_HOME         $NETCDF_FORTRAN_INSTALL_ROOT
 %XIOS_HOME           /projappl/project_2000789/puotila/XIOS/trunk

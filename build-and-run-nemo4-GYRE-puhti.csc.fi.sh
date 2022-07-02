@@ -67,10 +67,9 @@ sbatch << EOF
 #SBATCH --job-name=nemo
 #SBATCH --account=project_2000789
 #SBATCH --time=00:30:00
-##SBATCH --mem-per-cpu=2G
 #SBATCH --nodes=1
 #SBATCH --partition=test
-##SBATCH --ntasks-per-node=16
+#SBATCH --ntasks-per-node=16
 
 module purge
 module load StdEnv ${compiler}/${compiler_version} ${mpi}/${mpi_version}
