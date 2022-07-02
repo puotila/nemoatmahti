@@ -1,4 +1,4 @@
-#!/bin/bash -l
+#!/bin/bash
 ###
 ### parallel job script example
 ###
@@ -6,7 +6,7 @@
 #SBATCH --job-name=o025
 #SBATCH --account=project_2000789
 #SBATCH --time=01:00:00
-#SBATCH --nodes=1
+#SBATCH --nodes=2
 #SBATCH --partition=test
 #SBATCH --ntasks-per-node=128
 

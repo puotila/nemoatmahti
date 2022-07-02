@@ -73,6 +73,7 @@ echo "                               0  0.0000000000000000E+00  0.00000000000000
 
 cp -p $PROJAPPL/$USER/nemoatmahti/namelist_cfg.orca025 namelist_cfg
 cp -p $PROJAPPL/$USER/nemoatmahti/nemorun_orca025.sh .
+cp -p $PROJAPPL/$USER/nemoatmahti/field_def_nemo-oce.xml .
 
 sbatch << EOF
 #!/bin/bash
