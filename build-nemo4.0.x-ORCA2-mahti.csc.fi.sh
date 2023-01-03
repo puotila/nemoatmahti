@@ -8,10 +8,11 @@ set -ex
 # 2018-12-14, Petteri Uotila, INAR/UH
 # 2021-01-28, Petteri Uotila, INAR/UH
 # 2022-07-02, Petteri Uotila, INAR/UH
+# 2023-01-03, Petteri Uotila, INAR/UH
 
-PROJ=project_2000789 
+PROJ=project_2004927 
 
-nemo_version=4.2.0
+nemo_version=4.0.7
 
 compiler=gcc
 compiler_version=11.2.0
@@ -29,7 +30,8 @@ export SCRATCH=/scratch/$PROJ
 cd /scratch/$PROJ/$USER
 # Checkout sources
 if [[ ! -d nemo_$nemo_version ]]; then
-    git clone --branch $nemo_version https://forge.nemo-ocean.eu/nemo/nemo.git nemo_$nemo_version
+    #git clone --branch $nemo_version https://forge.nemo-ocean.eu/nemo/nemo.git nemo_$nemo_version
+    svn co https://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r4.0.7 nemo_$nemo_version
 fi
 cd nemo_$nemo_version
 
@@ -61,22 +63,23 @@ cat > arch/arch-${compiler}-mahti.csc.fi.fcm <<EOF
 %CFLAGS              -O0
 EOF
 
-./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE" -r ORCA2_ICE_PISCES -n MY_ORCA2_ICE del_key "key_top"
+./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE" -r ORCA2_ICE_PISCES -n ORCA2_HPU del_key "key_top"
 
 # get input data and run the experiment
-cd cfgs/MY_ORCA2_ICE/EXP00
+cd cfgs/ORCA2_HPU/EXP00
 sed -i    "s|^.* nn_fsbc.* =.*$|   nn_fsbc     = 1  |g" namelist_cfg
 sed -i    "s|^.* nn_itend.* =.*$|   nn_itend   = 2880 |g" namelist_cfg
-if [[ ! -f ORCA2_ICE_v4.2.0.tar.gz ]]; then
-    wget -nc https://gws-access.jasmin.ac.uk/public/nemo/sette_inputs/r4.2.0/ORCA2_ICE_v4.2.0.tar.gz
-    tar --strip-components=1 -zxf ORCA2_ICE_v4.2.0.tar.gz
+if [[ ! -f ORCA2_ICE_v4.0.tar ]]; then
+    wget -nc https://zenodo.org/record/3386310/files/ORCA2_ICE_v4.0.tar
+    tar -xf ORCA2_ICE_v4.0.tar
+    gunzip *.gz
 fi
 
 sbatch << EOF
 #!/bin/bash
 ###
 #SBATCH --job-name=orca2
-#SBATCH --account=project_2000789
+#SBATCH --account=project_2004927
 #SBATCH --time 00:30:00
 #SBATCH --nodes=1
 #SBATCH --partition=test
