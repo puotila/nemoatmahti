@@ -19,7 +19,7 @@
 !-----------------------------------------------------------------------
 &namrun        !   parameters of the run
 !-----------------------------------------------------------------------
-   cn_exp      =  "ORCA025" !  experience name
+   cn_exp      =  "eORCA025" !  experience name
    nn_it000    =       1   !  first time step
    nn_itend    =      10   !  last  time step (std 5475)
    nn_date0    =  19870101 !  date at nit_0000 (format yyyymmdd) used if ln_rstart=F or (ln_rstart=T and nn_rstctl=0 or 1)
@@ -28,15 +28,16 @@
 !-----------------------------------------------------------------------
 &namdom        !   time and space domain
 !-----------------------------------------------------------------------
-   rn_rdt      = 900.  
+   ln_linssh   = .true.    !  =T  linear free surface  ==>>  model level are fixed in time
+   rn_rdt      = 1200.  
    ln_meshmask = .false.   !  =T create a mesh file
 /
 !-----------------------------------------------------------------------
 &namcfg        !   parameters of the configuration                      (default: use namusr_def in namelist_cfg)
 !-----------------------------------------------------------------------
    ln_read_cfg = .true.    !  (=T) read the domain configuration file
-      cn_domcfg = "ORCA_R025_zps_domcfg_hmin-5"    ! domain configuration filename
       !
+      cn_domcfg = "ORCA_R025_zps_domcfg_hmin-5"    ! domain configuration filename
       ln_closea    = .false.    !  F => suppress closed seas (defined by closea_mask field) 
       !                         !       from the bathymetry at runtime.
 /
@@ -84,12 +85,11 @@
    nn_ice      = 2         !  =2 or 3 automatically for SI3 or CICE    ("key_si3" or "key_cice")
                            !          except in AGRIF zoom where it has to be specified
                      ! Misc. options of sbc : 
-   ln_traqsr   = .false.   !  Light penetration in the ocean            (T => fill namtra_qsr)
+   ln_traqsr   = .true.   !  Light penetration in the ocean            (T => fill namtra_qsr)
    ln_ssr      = .true.    !  Sea Surface Restoring on T and/or S       (T => fill namsbc_ssr)
    ln_rnf      = .true.   !  runoffs                                   (T => fill namsbc_rnf)
    nn_fwb      = 2         !  FreshWater Budget: 
    !                       !    =2 annual global mean of e-p-r set to zero
-   ln_wave     = .false.   !  Activate coupling with wave  (T => fill namsbc_wave)
 /
 !-----------------------------------------------------------------------
 &namsbc_blk    !   namsbc_blk  generic Bulk formula                     (ln_blk =T)
@@ -120,15 +120,15 @@
 &namtra_qsr    !   penetrative solar radiation                          (ln_traqsr =T)
 !-----------------------------------------------------------------------
    !                       ! type of penetration                        (default: NO selection)
-   ln_qsr_rgb  = .false.       !  RGB light penetration (Red-Green-Blue)
+   ln_qsr_rgb  = .true.       !  RGB light penetration (Red-Green-Blue)
    !
    nn_chldta   =      1       !  RGB : Chl data (=1) or cst value (=0)
 
-   cn_dir = '/scratch/project_2004927/nemoinput/ORCA025/'  !  root directory for the chlorophyl data location
+   cn_dir = '/scratch/project_2004927/nemoinput/eORCA025/'  !  root directory for the chlorophyl data location
    !___________!_________________________!___________________!___________!_____________!________!___________!__________________!__________!_______________!
    !           !  file name              ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights filename ! rotation ! land/sea mask !
-   !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !                  ! pairing  !    filename   !sn_chl      ='chlorophyll'            ,        -1         , 'CHLA'    ,   .true.    , .true. , 'yearly'  , ''               , ''       , ''
-   sn_chl      = 'merged_ESACCI_BIOMER4V1R1_CHL_ORCA1',        -1         , 'CHLA'    ,   .true.    , .true. , 'yearly'  , ''               , ''       , ''
+   !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !                  ! pairing  !    filename   !
+   sn_chl      = 'chlorophyl_v0.0.nc',        -1         , 'CHLA'    ,   .true.    , .true. , 'yearly'  , 'eORCA025_chlorophyl_v0.0_c3.0_weights_bilin.nc', ''       , ''
 /
 !-----------------------------------------------------------------------
 &namsbc_ssr    !   surface boundary condition : sea surface restoring   (ln_ssr =T)
@@ -158,10 +158,6 @@
    sn_rnf      = 'friver'    ,        24          , 'friver'  ,   .true.     , .false., 'yearly'  , 'weights_jra55_ORCA025_bilin.nc'       , ''       , ''
 /
 !-----------------------------------------------------------------------
-&namsbc_wave   ! External fields from wave model                        (ln_wave=T)
-!-----------------------------------------------------------------------
-/
-!-----------------------------------------------------------------------
 &namberg       !   iceberg parameters                                   (default: OFF)
 !-----------------------------------------------------------------------
    ln_icebergs = .false.    ! activate iceberg floats (force =F with "key_agrif")
@@ -172,6 +168,7 @@
    !      !           !  (if <0  months)  !     name     !   (logical)  !  (T/F ) ! 'monthly' ! filename ! pairing  ! filename      !
    sn_icb =  'calving',       -1.         , 'calving'    ,   .true.     , .true.  , 'yearly'  , ''       , ''       , ''
 /
+
 !!======================================================================
 !!               ***  Lateral boundary condition  ***                 !!
 !!                                                                    !!
@@ -186,16 +183,10 @@
 !-----------------------------------------------------------------------
 &namlbc        !   lateral momentum boundary condition                  (default: NO selection)
 !-----------------------------------------------------------------------
-   rn_shlat    =    2.     !  no slip
+   !                       !  free slip  !   partial slip  !   no slip   ! strong slip
+   rn_shlat    =    0.     !  shlat = 0  !  0 < shlat < 2  !  shlat = 2  !  2 < shlat
 /
-!-----------------------------------------------------------------------
-&namagrif      !  AGRIF zoom                                            ("key_agrif")
-!-----------------------------------------------------------------------
-   ln_spc_dyn    = .true.  !  use 0 as special value for dynamics
-   rn_sponge_tra = 2880.   !  coefficient for tracer   sponge layer [m2/s]
-   rn_sponge_dyn = 2880.   !  coefficient for dynamics sponge layer [m2/s]
-   ln_chk_bathy  = .false. !  =T  check the parent bathymetry
-/
+
 !!======================================================================
 !!                ***  Top/Bottom boundary condition  ***             !!
 !!                                                                    !!
@@ -227,11 +218,12 @@
 &nambbl        !   bottom boundary layer scheme                         (default: OFF)
 !-----------------------------------------------------------------------
    ln_trabbl   = .true.    !  Bottom Boundary Layer parameterisation flag
-      nn_bbl_ldf  =  1        !  diffusive bbl (=1)   or not (=0)
-      nn_bbl_adv  =  0        !  advective bbl (=1/2) or not (=0)
+      nn_bbl_ldf  =  0        !  diffusive bbl (=1)   or not (=0)
+      nn_bbl_adv  =  1        !  advective bbl (=1/2) or not (=0)
       rn_ahtbbl   =  1000.    !  lateral mixing coefficient in the bbl  [m2/s]
       rn_gambbl   =  10.      !  advective bbl coefficient                 [s]
 /
+
 !!======================================================================
 !!                        Tracer (T-S) namelists                      !!
 !!                                                                    !!
@@ -252,8 +244,6 @@
 &namtra_adv    !   advection scheme for tracer                          (default: NO selection)
 !-----------------------------------------------------------------------
    ln_traadv_fct = .true.     !  FCT scheme
-      nn_fct_h   =  2               !  =2/4, horizontal 2nd / 4th order 
-      nn_fct_v   =  2               !  =2/4, vertical   2nd / COMPACT 4th order 
 /
 !-----------------------------------------------------------------------
 &namtra_ldf    !   lateral diffusion scheme for tracers                 (default: NO selection)
@@ -264,11 +254,11 @@
    !                       !  Coefficients:
    nn_aht_ijk_t    = 20        !  space/time variation of eddy coef
       !                             !   = 20     aht = 1/2  Ud. max(e1,e2)
-      rn_Ud        = 0.018          !  lateral diffusive velocity [m/s] (nn_aht_ijk_t= 0, 10, 20, 30)
+      rn_Ud        = 0.0193         !  lateral diffusive velocity [m/s] (nn_aht_ijk_t= 0, 10, 20, 30)
       rn_Ld        = 200.e+3        !  lateral diffusive length   [m]   (nn_aht_ijk_t= 0, 10)
 /
 !-----------------------------------------------------------------------
-&namtra_mle    !   mixed layer eddy parametrisation (Fox-Kemper)        (default: OFF)
+&namtra_mle    !   mixed layer eddy parametrisation (Fox-Kemper)       (default: OFF)
 !-----------------------------------------------------------------------
    ln_mle      = .true.   ! (T) use the Mixed Layer Eddy (MLE) parameterisation
 /
@@ -288,9 +278,8 @@
 !-----------------------------------------------------------------------
 &namtra_dmp    !   tracer: T & S newtonian damping                      (default: OFF)
 !-----------------------------------------------------------------------
-   ln_tradmp   =  .false.   !  add a damping term (using resto.nc coef.)
-      nn_zdmp  =    0         !  vertical shape =0    damping throughout the water column
 /
+
 !!======================================================================
 !!                      ***  Dynamics namelists  ***                  !!
 !!                                                                    !!
@@ -307,13 +296,12 @@
 &namdyn_adv    !   formulation of the momentum advection                (default: NO selection)
 !-----------------------------------------------------------------------
    ln_dynadv_vec = .true.  !  vector form - 2nd centered scheme
-     nn_dynkeg     = 0        ! grad(KE) scheme: =0   C2  ;  =1   Hollingsworth correction
+     nn_dynkeg     = 1        ! grad(KE) scheme: =0   C2  ;  =1   Hollingsworth correction
 /
 !-----------------------------------------------------------------------
 &namdyn_vor    !   Vorticity / Coriolis scheme                          (default: NO selection)
 !-----------------------------------------------------------------------
    ln_dynvor_een = .true.  !  energy & enstrophy scheme
-      nn_een_e3f = 0          ! =0   e3f = mean masked e3t divided by 4
 /
 !-----------------------------------------------------------------------
 &namdyn_hpg    !   Hydrostatic pressure gradient option                 (default: NO selection)
@@ -323,14 +311,18 @@
 !-----------------------------------------------------------------------
 &namdyn_spg    !   surface pressure gradient                            (default: NO selection)
 !-----------------------------------------------------------------------
-   ln_dynspg_ts  = .true.  !  split-explicit free surface
+   ln_dynspg_ts   = .true.    ! split-explicit free surface
+         nn_bt_flt     = 2          ! Time filter choice  = 0 None
+         rn_bt_cmax   =  0.7        ! =T : the Maximum Courant Number allowed
 /
 !-----------------------------------------------------------------------
 &namdyn_ldf    !   lateral diffusion on momentum                        (default: NO selection)
 !-----------------------------------------------------------------------
-   ln_dynldf_lap =  .true.     !    laplacian operator
-   ln_dynldf_lev =  .true.     !  iso-level
-   nn_ahm_ijk_t  =   0         !  =-30  3D coeff. read in eddy_diffusivity_3D.nc
+   !                       !  Type of the operator :
+   ln_dynldf_blp = .true.      !  bilaplacian operator
+   ln_dynldf_hor = .true.      !  horizontal  (geopotential)
+   nn_ahm_ijk_t  = 20          !  space/time variation of eddy coefficient :
+      rn_Uv      = 0.02683          !  lateral viscous velocity [m/s] (nn_ahm_ijk_t= 0, 10, 20, 30)
 /
 !!======================================================================
 !!                     vertical physics namelists                     !!
@@ -346,10 +338,12 @@
 !-----------------------------------------------------------------------
 &namzdf        !   vertical physics manager                             (default: NO selection)
 !-----------------------------------------------------------------------
+   !                       ! adaptive-implicit vertical advection
+   ln_zad_Aimp = .true.    !  Courant number dependent scheme (Shchepetkin 2015)
    ln_zdftke   = .true.       !  Turbulent Kinetic Energy closure       (T =>   fill namzdf_tke)
    ln_zdfevd   = .true.       !  Enhanced Vertical Diffusion scheme
-      nn_evdm  =    0            !  evd apply on tracer (=0) or on tracer and momentum (=1)
-      rn_evd   =  100.           !  evd mixing coefficient [m2/s]
+      nn_evdm  =    1            !  evd apply on tracer (=0) or on tracer and momentum (=1)
+      rn_evd   =   10.           !  evd mixing coefficient [m2/s]
    ln_zdfddm   = .true.    ! double diffusive mixing
       rn_avts  =    1.e-4     !  maximum avs (vertical mixing on salinity)
       rn_hsbfr =    1.6       !  heat/salt buoyancy flux ratio
@@ -363,6 +357,7 @@
 !-----------------------------------------------------------------------
 &namzdf_tke    !   turbulent eddy kinetic dependent vertical diffusion  (ln_zdftke =T)
 !-----------------------------------------------------------------------
+   rn_mxl0     =   0.01    !  surface  buoyancy lenght scale minimum value
       nn_mxl      =   3       !  mixing length: = 0 bounded by the distance to surface and bottom
       !                       !                 = 1 bounded by the local vertical scale factor
       !                       !                 = 2 first vertical derivative of mixing length bounded by 1
@@ -393,6 +388,11 @@
 !!   namnc4       netcdf4 chunking and compression settings             ("key_netcdf4")
 !!======================================================================
 !
+!-----------------------------------------------------------------------
+&namnc4        !   netcdf4 chunking and compression settings            ("key_netcdf4")
+!-----------------------------------------------------------------------
+   nn_nchunks_k =   75      !  number of chunks in k-dimension
+/
 !!======================================================================
 !!               ***  Observation & Assimilation  ***                 !!
 !!                                                                    !!
