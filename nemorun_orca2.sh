@@ -12,7 +12,7 @@
 
 
 module purge
-module load gcc/11.2.0 mpich/4.0.1 boost/1.77.0-mpi netcdf-c/4.8.1 netcdf-fortran/4.5.3
+module load gcc/11.2.0 openmpi/4.1.2 boost/1.77.0-mpi netcdf-c/4.8.1 netcdf-fortran/4.5.3 hdf5/1.10.7-mpi
 ## run my MPI executable
 #srun ./nemo
 srun --multi-prog master.cfg
