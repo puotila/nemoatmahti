@@ -2,17 +2,19 @@
 
 set -ex
 
-# NEMO build and install instructions for mahti.csc.fi
+# NEMO4.0.7 ORCA025 build and install instructions for mahti.csc.fi
 #
 # 2018-12-11, Juha Lento, CSC
 # 2018-12-14, Petteri Uotila, INAR/UH
 # 2021-01-28, Petteri Uotila, INAR/UH
 # 2021-09-10, Petteri Uotila, INAR/UH
 # 2022-07-02, Petteri Uotila, INAR/UH
+# 2023-01-03, Petteri Uotila, INAR/UH
 
-PROJ=project_2000789 
+INITIALS=HPU # set your initials here
+PROJ=project_2004927 
 
-nemo_version=4.2.0
+nemo_version=4.0.7
 
 compiler=gcc
 compiler_version=11.2.0
@@ -30,7 +32,7 @@ export SCRATCH=/scratch/$PROJ
 cd /scratch/$PROJ/$USER
 # Checkout sources
 if [[ ! -d nemo_$nemo_version ]]; then
-    git clone --branch $nemo_version https://forge.nemo-ocean.eu/nemo/nemo.git nemo_$nemo_version
+    svn co https://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r4.0.7 nemo_$nemo_version
 fi
 cd nemo_$nemo_version
 
@@ -62,11 +64,10 @@ cat > arch/arch-${compiler}-mahti.csc.fi.fcm <<EOF
 %CFLAGS              -O0
 EOF
 
-./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE" -r ORCA2_ICE_PISCES -n MY_ORCA025_ICE del_key "key_top"
+./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE" -r ORCA2_ICE_PISCES -n ORCA025_${INITIALS} del_key "key_top"
 
 # get input data and run the experiment
-ENAME=EXP00
-cd cfgs/MY_ORCA025_ICE/${ENAME}
+cd cfgs/ORCA025_${INITIALS}/EXP00
 
 ln -s $SCRATCH/nemoinput/ORCA025/ORCA_R025_zps_domcfg_hmin-5.nc
 echo "                               0  0.0000000000000000E+00  0.0000000000000000E+00" > EMPave_old.dat
@@ -80,7 +81,7 @@ sbatch << EOF
 ###
 ## name of your job
 #SBATCH --job-name=orca025
-#SBATCH --account=project_2000789
+#SBATCH --account=project_2004927
 ##SBATCH --mem-per-cpu=2G
 ## how long a job takes, wallclock time hh:mm:ss
 #SBATCH --time 01:00:00

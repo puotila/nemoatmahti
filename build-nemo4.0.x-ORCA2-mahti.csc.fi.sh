@@ -2,7 +2,7 @@
 
 set -ex
 
-# NEMO build and install instructions for mahti.csc.fi
+# NEMO4.0.7 build and install instructions for mahti.csc.fi
 #
 # 2018-12-11, Juha Lento, CSC
 # 2018-12-14, Petteri Uotila, INAR/UH
@@ -10,6 +10,7 @@ set -ex
 # 2022-07-02, Petteri Uotila, INAR/UH
 # 2023-01-03, Petteri Uotila, INAR/UH
 
+INITIALS=HPU # set your initials here
 PROJ=project_2004927 
 
 nemo_version=4.0.7
@@ -30,7 +31,6 @@ export SCRATCH=/scratch/$PROJ
 cd /scratch/$PROJ/$USER
 # Checkout sources
 if [[ ! -d nemo_$nemo_version ]]; then
-    #git clone --branch $nemo_version https://forge.nemo-ocean.eu/nemo/nemo.git nemo_$nemo_version
     svn co https://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r4.0.7 nemo_$nemo_version
 fi
 cd nemo_$nemo_version
@@ -63,10 +63,10 @@ cat > arch/arch-${compiler}-mahti.csc.fi.fcm <<EOF
 %CFLAGS              -O0
 EOF
 
-./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE" -r ORCA2_ICE_PISCES -n ORCA2_HPU del_key "key_top"
+./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE" -r ORCA2_ICE_PISCES -n ORCA025_${INITIALS} del_key "key_top"
 
 # get input data and run the experiment
-cd cfgs/ORCA2_HPU/EXP00
+cd cfgs/ORCA2_${INITIALS}/EXP00
 sed -i    "s|^.* nn_fsbc.* =.*$|   nn_fsbc     = 1  |g" namelist_cfg
 sed -i    "s|^.* nn_itend.* =.*$|   nn_itend   = 2880 |g" namelist_cfg
 if [[ ! -f ORCA2_ICE_v4.0.tar ]]; then
