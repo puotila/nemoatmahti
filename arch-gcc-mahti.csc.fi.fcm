@@ -1,7 +1,7 @@
-%HDF5_HOME           /appl/spack/v017/install-tree/gcc-11.2.0/hdf5-1.10.7-veijpf
-%NCDF_C_HOME         /appl/spack/v017/install-tree/gcc-11.2.0/netcdf-c-4.8.1-zwgxga
-%NCDF_F_HOME         /appl/spack/v017/install-tree/gcc-11.2.0/netcdf-fortran-4.5.3-ooopto
-%XIOS_HOME           /projappl/project_2000789/puotila/XIOS/trunk
+%HDF5_HOME           /appl/spack/v017/install-tree/gcc-11.2.0/hdf5-1.10.7-qc3apk
+%NCDF_C_HOME         /appl/spack/v017/install-tree/gcc-11.2.0/netcdf-c-4.8.1-k66cgq
+%NCDF_F_HOME         /appl/spack/v017/install-tree/gcc-11.2.0/netcdf-fortran-4.5.3-y5m33p
+%XIOS_HOME           /projappl/project_2004927/puotila/XIOS/trunk
 
 %NCDF_INC            -I%NCDF_F_HOME/include -I%NCDF_C_HOME/include -I%HDF5_HOME/include
 %NCDF_LIB            -L%NCDF_F_HOME/lib -lnetcdff -L%NCDF_C_HOME/lib -lnetcdf
@@ -10,7 +10,7 @@
 
 %CPP	             cpp -Dkey_nosignedzero 
 %FC	             mpif90 -c -cpp
-%FCFLAGS             -fdefault-real-8 -O1 -funroll-all-loops -fcray-pointer -ffree-line-length-none
+%FCFLAGS             -fdefault-real-8 -O1 -funroll-all-loops -fcray-pointer -ffree-line-length-none -fallow-argument-mismatch
 %FFLAGS              %FCFLAGS
 %LD                  mpif90
 %LDFLAGS             -lstdc++

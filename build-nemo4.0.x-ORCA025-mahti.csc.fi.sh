@@ -81,7 +81,7 @@ sbatch << EOF
 #!/bin/bash
 ###
 #SBATCH --job-name=orca025
-#SBATCH --account=$[PROJ}
+#SBATCH --account=${PROJ}
 ##SBATCH --mem-per-cpu=2G
 ## how long a job takes, wallclock time hh:mm:ss
 #SBATCH --time 01:00:00
