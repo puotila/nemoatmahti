@@ -2,7 +2,7 @@
 
 set -ex
 
-# NEMO4.0.7 build and install instructions for mahti.csc.fi
+# NEMO4.0.7 ORCA2 build and install instructions for mahti.csc.fi
 #
 # 2018-12-11, Juha Lento, CSC
 # 2018-12-14, Petteri Uotila, INAR/UH
@@ -17,13 +17,14 @@ nemo_version=4.0.7
 
 compiler=gcc
 compiler_version=11.2.0
-mpi=mpich
-mpi_version=4.0.1
+mpi=openmpi
+mpi_version=4.1.2
 
 module purge
 module load StdEnv ${compiler}/${compiler_version} ${mpi}/${mpi_version}
 module load boost/1.77.0-mpi
 module load netcdf-c/4.8.1 netcdf-fortran/4.5.3
+module load hdf5/1.10.7-mpi
 
 export PROJAPPL=/projappl/$PROJ
 export SCRATCH=/scratch/$PROJ
@@ -36,10 +37,10 @@ fi
 cd nemo_$nemo_version
 
 cat > arch/arch-${compiler}-mahti.csc.fi.fcm <<EOF
-%HDF5_HOME           /appl/spack/v017/install-tree/gcc-11.2.0/hdf5-1.10.7-veijpf
+%HDF5_HOME           $HDF5_INSTALL_ROOT
 %NCDF_C_HOME         $NETCDF_C_INSTALL_ROOT
 %NCDF_F_HOME         $NETCDF_FORTRAN_INSTALL_ROOT
-%XIOS_HOME           /projappl/project_2000789/puotila/XIOS/trunk
+%XIOS_HOME           /projappl/${PROJ}/puotila/XIOS/trunk
 
 %NCDF_INC            -I%NCDF_F_HOME/include -I%NCDF_C_HOME/include -I%HDF5_HOME/include
 %NCDF_LIB            -L%NCDF_F_HOME/lib -lnetcdff -L%NCDF_C_HOME/lib -lnetcdf
@@ -48,7 +49,7 @@ cat > arch/arch-${compiler}-mahti.csc.fi.fcm <<EOF
 
 %CPP	             cpp -Dkey_nosignedzero 
 %FC	             mpif90 -c -cpp
-%FCFLAGS             -fdefault-real-8 -O1 -funroll-all-loops -fcray-pointer -ffree-line-length-none
+%FCFLAGS             -fdefault-real-8 -O1 -funroll-all-loops -fcray-pointer -ffree-line-length-none -fallow-argument-mismatch
 %FFLAGS              %FCFLAGS
 %LD                  mpif90
 %LDFLAGS             -lstdc++
@@ -63,7 +64,8 @@ cat > arch/arch-${compiler}-mahti.csc.fi.fcm <<EOF
 %CFLAGS              -O0
 EOF
 
-./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE" -r ORCA2_ICE_PISCES -n ORCA025_${INITIALS} del_key "key_top"
+./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE" -r ORCA2_ICE_PISCES -n ORCA2_${INITIALS} del_key "key_top" clean
+./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE" -r ORCA2_ICE_PISCES -n ORCA2_${INITIALS} del_key "key_top"
 
 # get input data and run the experiment
 cd cfgs/ORCA2_${INITIALS}/EXP00
@@ -79,7 +81,7 @@ sbatch << EOF
 #!/bin/bash
 ###
 #SBATCH --job-name=orca2
-#SBATCH --account=project_2004927
+#SBATCH --account=${PROJ}
 #SBATCH --time 00:30:00
 #SBATCH --nodes=1
 #SBATCH --partition=test
