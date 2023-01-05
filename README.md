@@ -1,7 +1,7 @@
 # nemoatmahti
 nemo scripts to run on mahti
 
-1. `cd /projappl/$PROJ/$USER/
+1. `cd /projappl/$PROJ/$USER/`
 2. `git clone this_repo`
 3. `bash -x build_script.sh`
 4. `cd /scratch/$PROJ/$USER/nemo$version/cfgs/$CONFIG/EXP00/`
