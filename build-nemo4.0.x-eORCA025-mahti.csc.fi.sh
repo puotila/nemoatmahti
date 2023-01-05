@@ -2,7 +2,7 @@
 
 set -ex
 
-# NEMO4.0.7 ORCA025 build and install instructions for mahti.csc.fi
+# NEMO4.0.7 eORCA025 build and install instructions for mahti.csc.fi
 #
 # 2018-12-11, Juha Lento, CSC
 # 2018-12-14, Petteri Uotila, INAR/UH
@@ -37,11 +37,13 @@ if [[ ! -d nemo_$nemo_version ]]; then
 fi
 cd nemo_$nemo_version
 
+export XIOS_HOME=/projappl/${PROJ}/puotila/XIOS/trunk
+
 cat > arch/arch-${compiler}-mahti.csc.fi.fcm <<EOF
 %HDF5_HOME           $HDF5_INSTALL_ROOT
 %NCDF_C_HOME         $NETCDF_C_INSTALL_ROOT
 %NCDF_F_HOME         $NETCDF_FORTRAN_INSTALL_ROOT
-%XIOS_HOME           /projappl/${PROJ}/puotila/XIOS/trunk
+%XIOS_HOME           $XIOS_HOME
 
 %NCDF_INC            -I%NCDF_F_HOME/include -I%NCDF_C_HOME/include -I%HDF5_HOME/include
 %NCDF_LIB            -L%NCDF_F_HOME/lib -lnetcdff -L%NCDF_C_HOME/lib -lnetcdf
@@ -65,22 +67,24 @@ cat > arch/arch-${compiler}-mahti.csc.fi.fcm <<EOF
 %CFLAGS              -O0
 EOF
 
-./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE" -r ORCA2_ICE_PISCES -n ORCA025_${INITIALS} del_key "key_top" clean
-./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE" -r ORCA2_ICE_PISCES -n ORCA025_${INITIALS} del_key "key_top"
+./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE" -r ORCA2_ICE_PISCES -n eORCA025_${INITIALS} del_key "key_top" clean
+./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE" -r ORCA2_ICE_PISCES -n eORCA025_${INITIALS} del_key "key_top"
 
 # get input data and run the experiment
-cd cfgs/ORCA025_${INITIALS}/EXP00
+cd cfgs/eORCA025_${INITIALS}/EXP00
 
-ln -s $SCRATCH/nemoinput/ORCA025/ORCA_R025_zps_domcfg_hmin-5.nc
+ln -s $SCRATCH/nemoinput/eORCA025/eORCA_R025_zps_domcfg_hmin-5.nc
 echo "                               0  0.0000000000000000E+00  0.0000000000000000E+00" > EMPave_old.dat
 
-cp -p $PROJAPPL/$USER/nemoatmahti/namelist_cfg.orca025 namelist_cfg
-cp -p $PROJAPPL/$USER/nemoatmahti/nemorun_orca025.sh .
+cp -p $PROJAPPL/$USER/nemoatmahti/namelist_cfg.eorca025 namelist_cfg
+cp -p $PROJAPPL/$USER/nemoatmahti/nemorun_eorca025.sh .
+cp -p $PROJAPPL/$USER/nemoatmahti/master_eorca025.cfg .
+cp -p $XIOS_HOME/bin/xios_server.exe .
 
 sbatch << EOF
 #!/bin/bash
 ###
-#SBATCH --job-name=orca025
+#SBATCH --job-name=eo025
 #SBATCH --account=${PROJ}
 ##SBATCH --mem-per-cpu=2G
 ## how long a job takes, wallclock time hh:mm:ss
