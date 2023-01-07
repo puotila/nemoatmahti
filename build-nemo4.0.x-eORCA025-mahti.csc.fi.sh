@@ -76,10 +76,11 @@ cd cfgs/eORCA025_${INITIALS}/EXP00
 ln -s $SCRATCH/nemoinput/eORCA025/eORCA_R025_zps_domcfg_hmin-5.nc
 echo "                               0  0.0000000000000000E+00  0.0000000000000000E+00" > EMPave_old.dat
 
-cp -p $PROJAPPL/$USER/nemoatmahti/namelist_cfg.eorca025 namelist_cfg
-cp -p $PROJAPPL/$USER/nemoatmahti/nemorun_eorca025.sh .
-cp -p $PROJAPPL/$USER/nemoatmahti/master_eorca025.cfg .
-cp -p $XIOS_HOME/bin/xios_server.exe .
+cp -p /projappl/$PROJ/$USER/nemoatmahti/namelist_cfg.eorca025 namelist_cfg
+cp -p /projappl/$PROJ/$USER/nemoatmahti/namelist_ice_cfg.eorca025 namelist_ice_cfg
+cp -p /projappl/$PROJ/$USER/nemoatmahti/nemorun_eorca025.sh .
+cp -p /projappl/$PROJ/$USER/nemoatmahti/master_eorca025.cfg .
+cp -p /projappl/$XIOS_HOME/bin/xios_server.exe .
 
 sbatch << EOF
 #!/bin/bash

@@ -21,6 +21,8 @@
 !------------------------------------------------------------------------------
 &nampar         !   Generic parameters
 !------------------------------------------------------------------------------
+   cn_icerst_in     = "eORCA025_00000000_restart_ice"   !  suffix of ice restart name (input)
+   cn_icerst_indir  = "."             !  directory to read   input ice restarts
 /
 !------------------------------------------------------------------------------
 &namitd         !   Ice discretization
@@ -77,11 +79,17 @@
 !------------------------------------------------------------------------------
 &namini         !   Ice initialization
 !------------------------------------------------------------------------------
+   nn_iceini_file   =   1             !     0 = Initialise sea ice based on SSTs
+                                      !     1 = Initialise sea ice from single category netcdf file
+                                      !     2 = Initialise sea ice from multi category restart file
    sn_hti = 'eORCA025_seaice_c3.0_v19802004.0'  , -1 ,'sithic' ,  .true.   , .true., 'yearly'  , '' , '', ''
    sn_hts = 'eORCA025_seaice_c3.0_v19802004.0'  , -1 ,'snthic' ,  .true.   , .true., 'yearly'  , '' , '', ''
    sn_ati = 'eORCA025_seaice_c3.0_v19802004.0'  , -1 ,'siconc' ,  .true.   , .true., 'yearly'  , '' , '', ''
+   sn_smi = 'NOT USED'    , -12 ,'smi'   ,  .false.  , .true., 'yearly'  , '' , '', ''
+   sn_tmi = 'NOT USED'    , -12 ,'tmi'   ,  .false.  , .true., 'yearly'  , '' , '', ''
+   sn_tsu = 'NOT USED'    , -12 ,'tsu'   ,  .false.  , .true., 'yearly'  , '' , '', ''
 
-   cn_dir='/scratch/project_2000789/nemoinput/eORCA025/'
+   cn_dir='/scratch/project_2004927/nemoinput/eORCA025/'
 /
 !------------------------------------------------------------------------------
 &namalb         !   albedo parameters

@@ -23,7 +23,18 @@
    nn_it000    =       1   !  first time step
    nn_itend    =      10   !  last  time step (std 5475)
    nn_date0    =  19790101 !  date at nit_0000 (format yyyymmdd) used if ln_rstart=F or (ln_rstart=T and nn_rstctl=0 or 1)
+   ln_rstart   =  .false.   !  start from rest (F) or from a restart file (T)
+      nn_euler    =    1      !  = 0 : start with forward time step if ln_rstart=T
+      nn_rstctl   =    2      !  restart control ==> activated only if ln_rstart=T
+      !                          !    = 1 nn_date0 read in namelist ; nn_it000 : check consistancy between namelist and restart
+      !                          !    = 2 nn_date0 read in restart  ; nn_it000 : check consistancy between namelist and restart
+      cn_ocerst_in    = "eORCA025_00000000_restart"   !  suffix of ocean restart name (input)
+      cn_ocerst_indir = "."         !  directory from which to read input ocean restarts
    nn_istate   =       0   !  output the initial state (1) or not (0)
+   ln_rst_list = .false.   !  output restarts at list of times using nn_stocklist (T) or at set frequency with nn_stock (F)
+   nn_stock    =       0   !  used only if ln_rst_list = F: output restart freqeuncy (modulo referenced to 1)
+      !                          !    =  0 force to write restart files only at the end of the run
+      !                          !    = -1 do not do any restart
 /
 !-----------------------------------------------------------------------
 &namdom        !   time and space domain
@@ -199,7 +210,13 @@
 !-----------------------------------------------------------------------
 &namdrg        !   top/bottom drag coefficient                          (default: NO selection)
 !-----------------------------------------------------------------------
-   ln_lin = .true.         !     linear  drag: Cd = Cd0 Uc0
+   ln_non_lin  = .true.   !  non-linear  drag: Cd = Cd0 |U|
+/
+!-----------------------------------------------------------------------
+&namdrg_top    !   TOP friction                                         (ln_drg_OFF =F & ln_isfcav=T)
+!-----------------------------------------------------------------------
+   rn_Cd0      =  2.5.e-3    !  drag coefficient [-]
+   rn_ke0      =  0.0      !  background kinetic energy  [m2/s2] (non-linear cases)
 /
 !-----------------------------------------------------------------------
 &nambbc        !   bottom temperature boundary condition                (default: OFF)
@@ -217,7 +234,7 @@
 &nambbl        !   bottom boundary layer scheme                         (default: OFF)
 !-----------------------------------------------------------------------
    ln_trabbl   = .true.    !  Bottom Boundary Layer parameterisation flag
-      nn_bbl_ldf  =  0        !  diffusive bbl (=1)   or not (=0)
+      nn_bbl_ldf  =  1        !  diffusive bbl (=1)   or not (=0)
       nn_bbl_adv  =  1        !  advective bbl (=1/2) or not (=0)
       rn_ahtbbl   =  1000.    !  lateral mixing coefficient in the bbl  [m2/s]
       rn_gambbl   =  10.      !  advective bbl coefficient                 [s]
@@ -237,7 +254,8 @@
 !-----------------------------------------------------------------------
 &nameos        !   ocean Equation Of Seawater                           (default: NO selection)
 !-----------------------------------------------------------------------
-   ln_eos80    = .true.          !  = Use EOS80
+   ln_teos10   = .true.         !  = Use TEOS-10
+   ln_eos80    = .false.        !  = Use EOS80
 /
 !-----------------------------------------------------------------------
 &namtra_adv    !   advection scheme for tracer                          (default: NO selection)
@@ -253,7 +271,7 @@
    !                       !  Coefficients:
    nn_aht_ijk_t    = 20        !  space/time variation of eddy coef
       !                             !   = 20     aht = 1/2  Ud. max(e1,e2)
-      rn_Ud        = 0.0193         !  lateral diffusive velocity [m/s] (nn_aht_ijk_t= 0, 10, 20, 30)
+      rn_Ud        = 0.011          !  lateral diffusive velocity [m/s] (nn_aht_ijk_t= 0, 10, 20, 30)
       rn_Ld        = 200.e+3        !  lateral diffusive length   [m]   (nn_aht_ijk_t= 0, 10)
 /
 !-----------------------------------------------------------------------
@@ -312,7 +330,7 @@
 !-----------------------------------------------------------------------
    ln_dynspg_ts   = .true.    ! split-explicit free surface
          nn_bt_flt     = 2          ! Time filter choice  = 0 None
-         rn_bt_cmax   =  0.7        ! =T : the Maximum Courant Number allowed
+         rn_bt_cmax   =  0.8        ! =T : the Maximum Courant Number allowed
 /
 !-----------------------------------------------------------------------
 &namdyn_ldf    !   lateral diffusion on momentum                        (default: NO selection)
@@ -321,7 +339,7 @@
    ln_dynldf_blp = .true.      !  bilaplacian operator
    ln_dynldf_hor = .true.      !  horizontal  (geopotential)
    nn_ahm_ijk_t  = 20          !  space/time variation of eddy coefficient :
-      rn_Uv      = 0.02683          !  lateral viscous velocity [m/s] (nn_ahm_ijk_t= 0, 10, 20, 30)
+      rn_Uv      = 0.0838      !  lateral viscous velocity [m/s] (nn_ahm_ijk_t= 0, 10, 20, 30)
 /
 !!======================================================================
 !!                     vertical physics namelists                     !!
@@ -348,23 +366,15 @@
       rn_hsbfr =    1.6       !  heat/salt buoyancy flux ratio
    ln_zdfiwm   = .false.       ! internal wave-induced mixing            (T =>   fill namzdf_iwm)
    !                       !  Coefficients
-   rn_avm0     =   1.2e-4     !  vertical eddy viscosity   [m2/s]       (background Kz if ln_zdfcst=F)
-   rn_avt0     =   1.2e-5     !  vertical eddy diffusivity [m2/s]       (background Kz if ln_zdfcst=F)
+   rn_avm0     =   1.4e-6     !  vertical eddy viscosity   [m2/s]       (background Kz if ln_zdfcst=F)
+   rn_avt0     =   1.4e-7     !  vertical eddy diffusivity [m2/s]       (background Kz if ln_zdfcst=F)
    nn_avb      =    0         !  profile for background avt & avm (=1) or not (=0)
    nn_havtb    =    1         !  horizontal shape for avtb (=1) or not (=0)
 /
 !-----------------------------------------------------------------------
 &namzdf_tke    !   turbulent eddy kinetic dependent vertical diffusion  (ln_zdftke =T)
 !-----------------------------------------------------------------------
-   rn_mxl0     =   0.01    !  surface  buoyancy lenght scale minimum value
-      nn_mxl      =   3       !  mixing length: = 0 bounded by the distance to surface and bottom
-      !                       !                 = 1 bounded by the local vertical scale factor
-      !                       !                 = 2 first vertical derivative of mixing length bounded by 1
-      !                       !                 = 3 as =2 with distinct dissipative an mixing length scale
-      nn_etau     =   1       !  penetration of tke below the mixed layer (ML) due to NIWs
-                               !        = 0 none ; = 1 add a tke source below the ML
-                               !        = 2 add a tke source just at the base of the ML
-                               !        = 3 as = 1 applied on HF part of the stress           (ln_cpl=T)
+   rn_emin     =   1.e-10  !  minimum value of tke [m2/s2]
 /
 !-----------------------------------------------------------------------
 &namzdf_iwm    !    internal wave-driven mixing parameterization        (ln_zdfiwm =T)
@@ -387,6 +397,16 @@
 !!   namnc4       netcdf4 chunking and compression settings             ("key_netcdf4")
 !!======================================================================
 !
+!-----------------------------------------------------------------------
+&namtrd        !   trend diagnostics                                    (default: OFF)
+!-----------------------------------------------------------------------
+   ln_glo_trd  = .true.   ! (T) global domain averaged diag for T, T^2, KE, and PE
+/
+!-----------------------------------------------------------------------
+&namhsb        !  Heat and salt budgets                                 (default: OFF)
+!-----------------------------------------------------------------------
+   ln_diahsb   = .true.   !  output the heat and salt budgets (T) or not (F)
+/
 !-----------------------------------------------------------------------
 &namnc4        !   netcdf4 chunking and compression settings            ("key_netcdf4")
 !-----------------------------------------------------------------------

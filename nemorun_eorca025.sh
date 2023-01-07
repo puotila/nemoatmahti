@@ -5,7 +5,7 @@
 ## name of your job
 #SBATCH --job-name=eo025
 #SBATCH --account=project_2004927
-#SBATCH --time=10:00:00
+#SBATCH --time=12:00:00
 #SBATCH --nodes=4
 #SBATCH --partition=medium
 #SBATCH --ntasks-per-node=128
