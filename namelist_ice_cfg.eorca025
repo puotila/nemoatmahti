@@ -21,7 +21,7 @@
 !------------------------------------------------------------------------------
 &nampar         !   Generic parameters
 !------------------------------------------------------------------------------
-   cn_icerst_in     = "eORCA025_00000000_restart_ice"   !  suffix of ice restart name (input)
+   cn_icerst_in     = "eORCA025.L75_00000000_restart_ice"   !  suffix of ice restart name (input)
    cn_icerst_indir  = "."             !  directory to read   input ice restarts
 /
 !------------------------------------------------------------------------------
