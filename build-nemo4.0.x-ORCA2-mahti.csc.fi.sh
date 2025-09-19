@@ -32,7 +32,8 @@ export SCRATCH=/scratch/$PROJ
 cd /scratch/$PROJ/$USER
 # Checkout sources
 if [[ ! -d nemo_$nemo_version ]]; then
-    svn co https://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r4.0.7 nemo_$nemo_version
+    svn co https://svn-mirror.nemo-ocean.eu/NEMO/releases/r4.0/r$nemo_version nemo_$nemo_version
+    #svn co https://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r4.0.7 nemo_$nemo_version
 fi
 cd nemo_$nemo_version
 
@@ -64,8 +65,8 @@ cat > arch/arch-${compiler}-mahti.csc.fi.fcm <<EOF
 %CFLAGS              -O0
 EOF
 
-./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE" -r ORCA2_ICE_PISCES -n ORCA2_${INITIALS} del_key "key_top" clean
-./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE" -r ORCA2_ICE_PISCES -n ORCA2_${INITIALS} del_key "key_top"
+./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE TOP" -r ORCA2_ICE_PISCES -n ORCA2_${INITIALS} clean
+./makenemo -j 8 -m ${compiler}-mahti.csc.fi -d "OCE ICE TOP" -r ORCA2_ICE_PISCES -n ORCA2_${INITIALS}
 
 # get input data and run the experiment
 cd cfgs/ORCA2_${INITIALS}/EXP00
@@ -76,7 +77,11 @@ if [[ ! -f ORCA2_ICE_v4.0.tar ]]; then
     tar -xf ORCA2_ICE_v4.0.tar
     gunzip *.gz
 fi
-
+if [[ ! -f INPUTS_PISCES_v4.0.tar ]]; then
+    wget -nc https://zenodo.org/records/3386310/files/INPUTS_PISCES_v4.0.tar
+    tar -xf INPUTS_PISCES_v4.0.tar
+    gunzip *.gz
+fi
 sbatch << EOF
 #!/bin/bash
 ###

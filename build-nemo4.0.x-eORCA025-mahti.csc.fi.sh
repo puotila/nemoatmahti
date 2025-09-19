@@ -33,7 +33,8 @@ export SCRATCH=/scratch/$PROJ
 cd /scratch/$PROJ/$USER
 # Checkout sources
 if [[ ! -d nemo_$nemo_version ]]; then
-    svn co https://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r4.0.7 nemo_$nemo_version
+    svn co https://svn-mirror.nemo-ocean.eu/NEMO/releases/r4.0/r$nemo_version nemo_$nemo_version
+    # svn co https://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r$nemo_version nemo_$nemo_version
 fi
 cd nemo_$nemo_version
 
@@ -80,7 +81,7 @@ cp -p /projappl/$PROJ/$USER/nemoatmahti/namelist_cfg.eorca025 namelist_cfg
 cp -p /projappl/$PROJ/$USER/nemoatmahti/namelist_ice_cfg.eorca025 namelist_ice_cfg
 cp -p /projappl/$PROJ/$USER/nemoatmahti/nemorun_eorca025.sh .
 cp -p /projappl/$PROJ/$USER/nemoatmahti/master_eorca025.cfg .
-cp -p /projappl/$XIOS_HOME/bin/xios_server.exe .
+cp -p $XIOS_HOME/bin/xios_server.exe .
 
 sbatch << EOF
 #!/bin/bash
