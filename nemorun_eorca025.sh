@@ -16,3 +16,4 @@ module load gcc/11.2.0 openmpi/4.1.2 boost/1.77.0-mpi netcdf-c/4.8.1 netcdf-fort
 #srun -n194 --multi-prog master_eorca025.cfg
 srun -n512 --multi-prog master_eorca025.cfg
 
+seff $SLURM_JOBID

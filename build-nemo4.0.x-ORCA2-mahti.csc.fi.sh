@@ -25,6 +25,7 @@ module load StdEnv ${compiler}/${compiler_version} ${mpi}/${mpi_version}
 module load boost/1.77.0-mpi
 module load netcdf-c/4.8.1 netcdf-fortran/4.5.3
 module load hdf5/1.10.7-mpi
+module load git subversion
 
 export PROJAPPL=/projappl/$PROJ
 export SCRATCH=/scratch/$PROJ
